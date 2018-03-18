@@ -1,6 +1,9 @@
 # coding=utf-8
 
-from Tkinter import *
+from tkinter import *
+import hashlib
+import urllib2
+from pyfingerprint.pyfingerprint import PyFingerprint
 #root = Tk()
 
 class prueba:
@@ -14,6 +17,7 @@ class prueba:
             print('%s: "%s"' % (field, text))
 
         self.del_inf(master)
+        print("Trinitotoleiiii")
 
     def del_inf(self, master):
 
@@ -165,9 +169,10 @@ class prueba:
 
     def regis(self,master):
         print(self.control)
+        print("Registrar, mi pana!")
         if self.control == 2:
             self.del_busq(master)
-        if self.control ==3:
+        if self.control == 3:
             self.del_found(master)
             self.del_busq(master)
         elif self.control == 1:
@@ -244,7 +249,6 @@ class prueba:
         #self.ent.entry.delete()
 
     def busq(self,master):
-        print("hola")
         if self.control == 1:
             self.del_regis(master)
         #self.del_reg(master)
@@ -260,22 +264,84 @@ class prueba:
         
 
     def bus(self, master):
-        if self.busc.get() == "1":
-            self.found(master)
-        elif self.busc.get() == "2":
-            if self.control == 3:
-                self.del_found(master)
-            self.not_found(master)
-        else:
-            print("no")
+        try:
+            f = PyFingerprint('/dev/ttyUSB0', 57600, 0xFFFFFFFF, 0x00000000)
 
-    def not_found(self, master):
+            if ( f.verifyPassword() == False ):
+                raise ValueError('La clave del lector es incorrecta!')
+
+        except Exception as e:
+            print('El lector de huellas no pudo ser inicializado!')
+            print('Mensaje de error: ' + str(e))
+
+        try:
+            print('Por favor coloque el dedo...')
+
+            ## Esperar a que se coloque el dedo
+            while ( f.readImage() == False ):
+                pass
+
+            ## Convierte la imagen a characteristics y lo guarda en charbuffer 1
+            f.convertImage(0x01)
+
+            ## Se busca el template
+            result = f.searchTemplate()
+
+            positionNumber = result[0]
+            accuracyScore = result[1]
+
+            if ( positionNumber == -1 ):
+                print('No se ha encontrado registrada esta huella.')
+            else:
+                ## Carga el template al charbuffer 1
+                f.loadTemplate(positionNumber, 0x01)
+                ## Descarga los characteristics del template cargado en el charbuffer 1
+                characterics = str(f.downloadCharacteristics(0x01)).encode('utf-8')
+                ## Crea un hash SHA-2 con las characteristics del template
+                fingerHash = hashlib.sha256(characterics).hexdigest()
+                ## Busca en la base de datos el id del paciente al que pertenece la huella
+                try:
+                    patientId = urllib2.urlopen("http://sgra911.com/get-patient-id.php?fingerprint=" + fingerHash).read()
+                    patientInfo = urllib2.urlopen("http://sgra911.com/get-patient-info.php?patient_id=" + patientId).read().split(",")
+                    print("Identificacion: " + patientId)
+                    print("Nombre: " + patientInfo[0])
+                    print("Apellido: " + patientInfo[1])
+                    print("Sexo: " + patientInfo[2])
+                    print("Fecha de nacimiento: " + patientInfo[3])
+                    print("Tipo de Sangre: " + patientInfo[4])
+                    print("Aseguradora: " + patientInfo[5])
+                    print("NSS: " + patientInfo[6])
+                    print("Direccion: " + patientInfo[7])
+                    print("Alergias: " + patientInfo[8])
+                    print("Condiciones especiales: " + patientInfo[9])
+                    print("Contacto de emergencia #1: " + patientInfo[10])
+                    print("Contacto de emergencia #2: " + patientInfo[11])
+                    print("Hospital de preferencia: " + patientInfo[12])
+                    pass
+                except Exception as e:
+                    print("Ha ocurrido un error en la red. Verifique que esta conectado a internet")
+                    print('Mensaje de error: ' + str(e))
+                    exit(1)
+
+        except Exception as e:
+            print('Operacion fallida!')
+            print('Mensaje de error: ' + str(e))
+        #if self.busc.get() == "1":
+        #    self.found(master)
+        #elif self.busc.get() == "2":
+        #    if self.control == 3:
+        #        self.del_found(master)
+        #    self.mensaje(master, '\n Paciente no registrado.')
+        #else:
+        #    print("no")
+
+    def mostrarMensaje(self, master, texto):
 
         r = Tk()
         r.title('Mensaje')
         r.geometry('230x50')
         r.resizable(width=False, height=False)
-        mensaje = Label(r, text = '\n Paciente no registrado.')
+        mensaje = Label(r, text = texto)
         mensaje.pack()
         #ok = Button(r, text = "Aceptar",command = r.quit)
         #ok.pack()
