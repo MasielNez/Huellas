@@ -17,7 +17,6 @@ class prueba:
             print('%s: "%s"' % (field, text))
 
         self.del_inf(master)
-        print("Trinitotoleiiii")
 
     def del_inf(self, master):
 
@@ -169,7 +168,6 @@ class prueba:
 
     def regis(self,master):
         print(self.control)
-        print("Registrar, mi pana!")
         if self.control == 2:
             self.del_busq(master)
         if self.control == 3:
@@ -186,7 +184,6 @@ class prueba:
         self.b2.pack(side = LEFT, padx = 5, pady = 5)
 
     def del_regis(self, master):
-        print("its me")
         self.lab0.destroy()
         self.cedu.destroy()
         self.row0.destroy()
@@ -271,11 +268,11 @@ class prueba:
                 raise ValueError('La clave del lector es incorrecta!')
 
         except Exception as e:
-            print('El lector de huellas no pudo ser inicializado!')
+            self.mostrarMensaje('El lector de huellas no pudo ser inicializado!')
             print('Mensaje de error: ' + str(e))
 
         try:
-            print('Por favor coloque el dedo...')
+            self.mostrarMensaje('Por favor coloque el dedo en el lector de huellas.')
 
             ## Esperar a que se coloque el dedo
             while ( f.readImage() == False ):
@@ -291,7 +288,7 @@ class prueba:
             accuracyScore = result[1]
 
             if ( positionNumber == -1 ):
-                print('No se ha encontrado registrada esta huella.')
+                self.mostrarMensaje('No se ha encontrado registrada esta huella.')
             else:
                 ## Carga el template al charbuffer 1
                 f.loadTemplate(positionNumber, 0x01)
@@ -303,28 +300,27 @@ class prueba:
                 try:
                     patientId = urllib2.urlopen("http://sgra911.com/get-patient-id.php?fingerprint=" + fingerHash).read()
                     patientInfo = urllib2.urlopen("http://sgra911.com/get-patient-info.php?patient_id=" + patientId).read().split(",")
-                    print("Identificacion: " + patientId)
-                    print("Nombre: " + patientInfo[0])
-                    print("Apellido: " + patientInfo[1])
-                    print("Sexo: " + patientInfo[2])
-                    print("Fecha de nacimiento: " + patientInfo[3])
-                    print("Tipo de Sangre: " + patientInfo[4])
-                    print("Aseguradora: " + patientInfo[5])
-                    print("NSS: " + patientInfo[6])
-                    print("Direccion: " + patientInfo[7])
-                    print("Alergias: " + patientInfo[8])
-                    print("Condiciones especiales: " + patientInfo[9])
-                    print("Contacto de emergencia #1: " + patientInfo[10])
-                    print("Contacto de emergencia #2: " + patientInfo[11])
-                    print("Hospital de preferencia: " + patientInfo[12])
+                    self.mostrarMensaje("Identificación: " + patientId + "\n"
+                    "Nombre: " + patientInfo[0] + "\n"
+                    "Apellido: " + patientInfo[1] + "\n"
+                    "Sexo: " + patientInfo[2] + "\n"
+                    "Fecha de nacimiento: " + patientInfo[3] + "\n"
+                    "Tipo de Sangre: " + patientInfo[4] + "\n"
+                    "Aseguradora: " + patientInfo[5] + "\n"
+                    "NSS: " + patientInfo[6] + "\n"
+                    "Dirección: " + patientInfo[7] + "\n"
+                    "Alergias: " + patientInfo[8] + "\n"
+                    "Condiciones especiales: " + patientInfo[9] + "\n"
+                    "Contacto de emergencia #1: " + patientInfo[10] + "\n"
+                    "Contacto de emergencia #2: " + patientInfo[11] + "\n"
+                    "Hospital de preferencia: " + patientInfo[12])
                     pass
                 except Exception as e:
-                    print("Ha ocurrido un error en la red. Verifique que esta conectado a internet")
+                    self.mostrarMensaje("Ha ocurrido un error en la red. Verifique que esta conectado a internet.")
                     print('Mensaje de error: ' + str(e))
-                    exit(1)
 
         except Exception as e:
-            print('Operacion fallida!')
+            self.mostrarMensaje('Operacion fallida!')
             print('Mensaje de error: ' + str(e))
         #if self.busc.get() == "1":
         #    self.found(master)
@@ -335,7 +331,7 @@ class prueba:
         #else:
         #    print("no")
 
-    def mostrarMensaje(self, master, texto):
+    def mostrarMensaje(self, texto):
 
         r = Tk()
         r.title('Mensaje')
