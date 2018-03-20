@@ -166,13 +166,13 @@ class prueba:
         
         return entries
 
-    def regis(self,master):
+    def mostrarVentanaRegistrar(self,master):
         print(self.control)
         if self.control == 2:
-            self.del_busq(master)
+            self.del_ventanaBuscar(master)
         if self.control == 3:
             self.del_found(master)
-            self.del_busq(master)
+            self.del_ventanaBuscar(master)
         elif self.control == 1:
             return
         self.control = 1
@@ -183,7 +183,7 @@ class prueba:
         self.b2 = Button(master, text = 'Cancelar', command = lambda: self.del_inf(master))#master.quit)
         self.b2.pack(side = LEFT, padx = 5, pady = 5)
 
-    def del_regis(self, master):
+    def del_ventanaRegistrar(self, master):
         self.lab0.destroy()
         self.cedu.destroy()
         self.row0.destroy()
@@ -243,24 +243,21 @@ class prueba:
         self.b1.destroy()
         self.b2.destroy()
 
-        #self.ent.entry.delete()
-
-    def busq(self,master):
+    def mostrarVentanaBuscar(self,master):
         if self.control == 1:
-            self.del_regis(master)
-        #self.del_reg(master)
-        if self.control ==3:
+            self.del_ventanaRegistrar(master)
+        if self.control == 3:
             return
-        elif self.control ==2:
+        elif self.control == 2:
             return
         self.control = 2
-        self.busc = Entry(master)
-        self.busc.pack(padx = 5, pady = 5)
-        self.b3 = Button(master,text = 'Buscar', command = lambda: self.bus(master))
+        self.ventanaBuscar = Entry(master)
+        self.ventanaBuscar.pack(padx = 5, pady = 5)
+        self.b3 = Button(master,text = 'Buscar', command = lambda: self.buscarPaciente(master))
         self.b3.pack()
         
 
-    def bus(self, master):
+    def buscarPaciente(self, master):
         try:
             f = PyFingerprint('/dev/ttyUSB0', 57600, 0xFFFFFFFF, 0x00000000)
 
@@ -285,7 +282,7 @@ class prueba:
             result = f.searchTemplate()
 
             positionNumber = result[0]
-            accuracyScore = result[1]
+            #accuracyScore = result[1]
 
             if ( positionNumber == -1 ):
                 self.mostrarMensaje('No se ha encontrado registrada esta huella.')
@@ -315,6 +312,7 @@ class prueba:
                     "Contacto de emergencia #2: " + patientInfo[11] + "\n"
                     "Hospital de preferencia: " + patientInfo[12])
                     pass
+
                 except Exception as e:
                     self.mostrarMensaje("Ha ocurrido un error en la red. Verifique que esta conectado a internet.")
                     print('Mensaje de error: ' + str(e))
@@ -322,14 +320,6 @@ class prueba:
         except Exception as e:
             self.mostrarMensaje('Operacion fallida!')
             print('Mensaje de error: ' + str(e))
-        #if self.busc.get() == "1":
-        #    self.found(master)
-        #elif self.busc.get() == "2":
-        #    if self.control == 3:
-        #        self.del_found(master)
-        #    self.mensaje(master, '\n Paciente no registrado.')
-        #else:
-        #    print("no")
 
     def mostrarMensaje(self, texto):
 
@@ -339,8 +329,8 @@ class prueba:
         r.resizable(width=False, height=False)
         mensaje = Label(r, text = texto)
         mensaje.pack()
-        #ok = Button(r, text = "Aceptar",command = r.quit)
-        #ok.pack()
+        ok = Button(r, text = "Aceptar",command = r.quit)
+        ok.pack()
         r.mainloop()
     
     def found(self,master):
@@ -444,9 +434,9 @@ class prueba:
         self.l13.pack(side = LEFT)
         self.e13.pack(side = RIGHT, expand = YES, fill = X)
     
-    def del_busq(self, master):
+    def del_ventanaBuscar(self, master):
         self.b3.destroy()
-        self.busc.destroy()
+        self.ventanaBuscar.destroy()
 
     def del_found(self, master):
         self.l0.destroy()
@@ -521,8 +511,8 @@ class prueba:
         #frame.pack()
         self.control = int
         menubar = Menu(master)
-        menubar.add_command(label = 'Registrar Paciente', command = lambda: self.regis(master))
-        menubar.add_command(label = 'Buscar Paciente', command = lambda: self.busq(master))
+        menubar.add_command(label = 'Registrar Paciente', command = lambda: self.mostrarVentanaRegistrar(master))
+        menubar.add_command(label = 'Buscar Paciente', command = lambda: self.mostrarVentanaBuscar(master))
         master.config(menu = menubar)
 
         #self.holaButton = Button(master, text = "Hola", command = self.hola)
